@@ -9,14 +9,22 @@
 
 #include <ncurses.h>
 
-void displayUpdate(SprinklerHeadController *controller, uint8_t index, bool on) {
-  // Update the display
+void displayCycle(SprinklerHeadController *controller) {
   move(1, 1);
   printw("Cycle %d", controller->cycle + 1);
+}
 
-  move(index + 2, 1); // Move to line (index + 1), column 1
+void displayUpdatePump(SprinklerHeadController *controller, bool on) {
+  move(2, 1);
+  printw("Pump: %s", on ? "ON " : "OFF");
+}
+
+void displayUpdate(SprinklerHeadController *controller, uint8_t index,
+                   bool on) {
+  displayCycle(controller);
+
+  move(index + 3, 1); // Move to line (index + 1), column 1
   printw("Head %d: %s", index, on ? "ON " : "OFF");
-  refresh();
 }
 
 void displaySetup(SprinklerHeadController *controller) {
@@ -25,9 +33,12 @@ void displaySetup(SprinklerHeadController *controller) {
   clear();
 
   // Display initial states
+  displayCycle(controller);
+  displayUpdatePump(controller, false);
   for (uint8_t i = 0; i < controller->numHeads; ++i) {
     displayUpdate(controller, i, false);
   }
+  refresh();
 }
 
 void displayEnd(SprinklerHeadController *controller) {
@@ -35,13 +46,16 @@ void displayEnd(SprinklerHeadController *controller) {
   endwin();
 }
 
-void toggleLED(void *this, uint8_t index, bool on) {
+void togglePump(void *this, bool on) {
   SprinklerHeadController *controller = (SprinklerHeadController *)this;
-  // Your code to toggle an LED goes here.
-  // This is just a dummy example.
+  displayUpdatePump(controller, on);
+  refresh();
+}
 
+void toggleHead(void *this, uint8_t index, bool on) {
+  SprinklerHeadController *controller = (SprinklerHeadController *)this;
   displayUpdate(controller, index, on);
-  // printf("Toggle LED: %d %s\n", index, (on ? "on" : "off"));
+  refresh();
 }
 
 #endif
@@ -55,7 +69,13 @@ int main() {
 #ifdef LINUX
   printf("Running on Linux\n");
 
-  SprinklerHeadController *controller = SprinklerHeadControllerNew(3, toggleLED, 1500, 500);
+  SprinklerHeadControllerOptions opts = {.NumHeads = 3,
+                                         .HeadOnTime = 1500,
+                                         .HeadOffTime = 500,
+                                         .ToggleHeadFunction = toggleHead,
+                                         .TogglePumpFunction = togglePump,
+                                         .PumpDelay = 5000};
+  SprinklerHeadController *controller = SprinklerHeadControllerNew(opts);
 
   if (controller == NULL) {
     return -1;
@@ -64,8 +84,8 @@ int main() {
   displaySetup(controller);
 
   while (true) {
+    displayCycle(controller);
     SprinklerHeadControllerCycle(controller);
-    // printf("Cycle completed...\n");
   }
 
   displayEnd(controller);

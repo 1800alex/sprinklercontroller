@@ -3,20 +3,31 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef void (*ToggleFunction)(void *, uint8_t, bool);
+typedef void (*TogglePumpFunction)(void *, bool);
+typedef void (*ToggleHeadFunction)(void *, uint8_t, bool);
+
+typedef struct {
+  uint8_t NumHeads;
+  TogglePumpFunction TogglePumpFunction;
+  int PumpDelay;
+  ToggleHeadFunction ToggleHeadFunction;
+  int HeadOnTime;
+  int HeadOffTime;
+} SprinklerHeadControllerOptions;
 
 typedef struct {
   int cycle;
   uint8_t numHeads;
-  ToggleFunction toggleFunction;
-  int delayTime;
-  int nullTime;
+  TogglePumpFunction togglePumpFunction;
+  int pumpDelay;
+  ToggleHeadFunction toggleHeadFunction;
+  int headOnTime;
+  int headOffTime;
   uint8_t nextStartIndex;
   uint8_t *ledState;
 } SprinklerHeadController;
 
-SprinklerHeadController *SprinklerHeadControllerNew(uint8_t numHeads, ToggleFunction toggleFunction,
-                                int delayTime, int nullTime);
+SprinklerHeadController *SprinklerHeadControllerNew(SprinklerHeadControllerOptions opts);
 void SprinklerHeadControllerFree(SprinklerHeadController *controller);
 void SprinklerHeadControllerCycle(SprinklerHeadController *controller);
 uint8_t SprinklerHeadControllerGetState(SprinklerHeadController *controller, uint8_t index);
