@@ -12,8 +12,8 @@ CXX=g++
 LINUX_LD=$(CC) # use c linker
 PICO_CC=arm-none-eabi-gcc
 PICO_CXX=arm-none-eabi-g++
-CFLAGS=-O2 -g -DLINUX -I$(SRC_PATH)
-CXXFLAGS=-O2 -g -DLINUX -I$(SRC_PATH)
+CFLAGS=-DLINUX -I$(SRC_PATH) -O2 -g
+CXXFLAGS=-DLINUX -I$(SRC_PATH) -O2 -g
 LINUX_LDFLAGS=-lncurses -ltinfo
 
 PICO_CFLAGS=-O2 -g -I$(SRC_PATH)

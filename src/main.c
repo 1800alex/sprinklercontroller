@@ -1,7 +1,5 @@
-#include "SprinklerHeadController.h"
 #include <stdio.h>
-
-#define LINUX
+#include "SprinklerHeadController.h"
 
 #ifdef PICO
 #include "pico/stdlib.h"
