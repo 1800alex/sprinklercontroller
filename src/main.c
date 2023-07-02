@@ -24,7 +24,7 @@ void displayPumpStatus(SprinklerHeadController *controller, bool on)
 void displayHeadStatus(SprinklerHeadController *controller, uint8_t index,
 	bool on)
 {
-	move(index + 3, 1); // Move to line (index + 1), column 1
+	move(index + 3, 1);
 	printw("Head %d: %s", index, on ? "ON " : "OFF");
 }
 
@@ -73,9 +73,9 @@ int main()
 #endif
 
 #ifdef LINUX
-	SprinklerHeadControllerOptions opts = {.NumHeads = 3,
-		.HeadOnTime = 1500,
-		.HeadOffTime = 500,
+	SprinklerHeadControllerOptions opts = {.NumHeads = 8,
+		.HeadOnTime = 500,
+		.HeadOffTime = 200,
 		.ToggleHeadFunction = toggleHead,
 		.TogglePumpFunction = togglePump,
 		.PumpDelay = 500};
