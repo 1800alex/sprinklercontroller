@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.10)
-project(spc C CXX ASM)
 
 # Check the target platform
 if(DEFINED ENV{RASPBERRY_PI_PICO})
@@ -11,6 +10,13 @@ else()
     message("Configuring for Linux")
     set(LINUX_TARGET ON)
 endif()
+
+if(PI_TARGET)
+    # Include build functions from Pico SDK before declaring our project
+    include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+endif()
+
+project(spc C CXX ASM)
 
 # Add your common source files for both targets
 file(GLOB_RECURSE COMMON_SOURCES
@@ -78,9 +84,6 @@ if(LINUX_TARGET)
 endif()
 
 if(PI_TARGET)
-    # Include build functions from Pico SDK
-    include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
-
     # Raspberry Pi Pico target
     set(CMAKE_C_STANDARD 11)
     set(CMAKE_CXX_STANDARD 17)
