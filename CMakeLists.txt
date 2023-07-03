@@ -54,8 +54,6 @@ if(LINUX_TARGET)
 
 else()
     # Raspberry Pi Pico target
-    set(CMAKE_C_COMPILER arm-none-eabi-gcc)
-    set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
     set(CMAKE_C_STANDARD 11)
     set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdlib")
