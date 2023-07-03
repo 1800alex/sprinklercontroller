@@ -10,23 +10,23 @@
 #include <ncurses.h>
 #include <unistd.h>
 
-void displayCycle(SprinklerController::SprinklerHeadController *controller)
+void displayCycle(SprinklerController::SprinklerHeadController *spc)
 {
 	move(1, 1);
-	printw("Cycle %d", controller->GetCycle() + 1);
+	printw("Cycle %d", spc->GetCycle() + 1);
 }
 
-void displayPumpStatus(SprinklerController::SprinklerHeadController *controller, bool on)
+void displayPumpStatus(SprinklerController::SprinklerHeadController *spc, bool state)
 {
 	move(2, 1);
-	printw("Pump: %s", on ? "ON " : "OFF");
+	printw("Pump: %s", state ? "ON " : "OFF");
 }
 
-void displayHeadStatus(SprinklerController::SprinklerHeadController *controller, uint8_t index,
-	bool on)
+void displayHeadStatus(SprinklerController::SprinklerHeadController *spc, uint8_t index,
+	bool state)
 {
 	move(index + 3, 1);
-	printw("Head %d: %s", index, on ? "ON " : "OFF");
+	printw("Head %d: %s", index, state ? "ON " : "OFF");
 }
 
 void displaySetup(SprinklerController::SprinklerHeadController *controller)
@@ -50,24 +50,27 @@ void displaySetup(SprinklerController::SprinklerHeadController *controller)
 
 void displayEnd(SprinklerController::SprinklerHeadController *controller) { endwin(); }
 
-void togglePump(void *c, bool on)
-{
-	SprinklerController::SprinklerHeadController *controller = static_cast<SprinklerController::SprinklerHeadController *>(c);
-	displayPumpStatus(controller, on);
-	refresh();
-}
+class SimulatedSprinklerController : public SprinklerController::ISprinklerHeadController {
+public:
+	void SleepMS(void *controller, int ms) override
+	{
+		usleep(ms * 1000);
+	}
 
-void toggleHead(void *c, uint8_t index, bool on)
-{
-	SprinklerController::SprinklerHeadController *controller = static_cast<SprinklerController::SprinklerHeadController *>(c);
-	displayHeadStatus(controller, index, on);
-	refresh();
-}
+	void TogglePump(void *controller, bool state) override
+	{
+		SprinklerController::SprinklerHeadController *spc = static_cast<SprinklerController::SprinklerHeadController *>(controller);
+		displayPumpStatus(spc, state);
+		refresh();
+	}
 
-void sleepMS(int ms)
-{
-	usleep(ms * 1000);
-}
+	void ToggleHead(void *controller, uint8_t index, bool state) override
+	{
+		SprinklerController::SprinklerHeadController *spc = static_cast<SprinklerController::SprinklerHeadController *>(controller);
+		displayHeadStatus(spc, index, state);
+		refresh();
+	}
+};
 
 #endif
 
@@ -79,12 +82,11 @@ int main()
 #endif
 
 #ifdef LINUX
+	SimulatedSprinklerController *sim = new SimulatedSprinklerController();
 	SprinklerController::Options opts = {
-		.SleepMSFunction = sleepMS,
+		.ControllerImplementation = sim,
 		.NumHeads = 8,
-		.TogglePumpFunction = togglePump,
 		.PumpDelay = 500,
-		.ToggleHeadFunction = toggleHead,
 		.HeadOnTime = 500,
 		.HeadOffTime = 200,
 	};

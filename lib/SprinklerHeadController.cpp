@@ -5,11 +5,9 @@
 namespace SprinklerController {
 SprinklerHeadController::SprinklerHeadController(Options opts)
 	: cycle(0),
-	  sleepMSFunction(opts.SleepMSFunction),
+	  ctrl(opts.ControllerImplementation),
 	  numHeads(opts.NumHeads),
-	  togglePumpFunction(opts.TogglePumpFunction),
 	  pumpDelay(opts.PumpDelay),
-	  toggleHeadFunction(opts.ToggleHeadFunction),
 	  headOnTime(opts.HeadOnTime),
 	  headOffTime(opts.HeadOffTime),
 	  nextStartIndex(0),
@@ -29,28 +27,22 @@ SprinklerHeadController::~SprinklerHeadController()
 
 void SprinklerHeadController::Cycle()
 {
-	if(togglePumpFunction != nullptr)
-	{
-		togglePumpFunction(this, true);
-		sleepMSFunction(pumpDelay);
-	}
+	ctrl->TogglePump(this, true);
+	ctrl->SleepMS(this, pumpDelay);
 
 	for(uint8_t i = 0; i < numHeads; ++i)
 	{
 		uint8_t currentLED = (nextStartIndex + i) % numHeads;
-		toggleHeadFunction(this, currentLED, true);
+		ctrl->ToggleHead(this, currentLED, true);
 		ledState[currentLED] = 1;
-		sleepMSFunction(headOnTime);
-		toggleHeadFunction(this, currentLED, false);
+		ctrl->SleepMS(this, headOnTime);
+		ctrl->ToggleHead(this, currentLED, false);
 		ledState[currentLED] = 0;
-		sleepMSFunction(headOffTime);
+		ctrl->SleepMS(this, headOffTime);
 	}
 
-	if(togglePumpFunction != nullptr)
-	{
-		togglePumpFunction(this, false);
-		sleepMSFunction(pumpDelay);
-	}
+	ctrl->TogglePump(this, false);
+	ctrl->SleepMS(this, pumpDelay);
 
 	nextStartIndex = (nextStartIndex + 1) % numHeads;
 	cycle++;
@@ -74,4 +66,4 @@ int SprinklerHeadController::GetCycle(void)
 {
 	return cycle;
 }
-}
+} // namespace SprinklerController

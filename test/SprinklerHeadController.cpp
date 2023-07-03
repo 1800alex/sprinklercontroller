@@ -1,35 +1,31 @@
 #include "gtest/gtest.h"
 #include <lib/SprinklerHeadController.hpp>
 
-// Mock toggle functions for testing
-namespace MockToggleFunctions {
-void TogglePump(void *controller, bool state)
-{
-	// Mock implementation
-}
+class MockSprinklerController : public SprinklerController::ISprinklerHeadController {
+public:
+    void SleepMS(void *controller, int ms) override {
+        // Custom implementation for toggling the pump
+    }
 
-void ToggleHead(void *controller, uint8_t index, bool state)
-{
-	// Mock implementation
-}
+    void TogglePump(void *controller, bool state) override {
+        // Custom implementation for toggling the pump
+    }
 
-void SleepMS(int ms)
-{
-	// Mock implementation
-}
-} // namespace MockToggleFunctions
+    void ToggleHead(void *controller, uint8_t index, bool state) override {
+        // Custom implementation for toggling a sprinkler head
+    }
+};
 
 // Fixture for the SprinklerHeadController test
 class SprinklerHeadControllerTest : public ::testing::Test {
 protected:
 	void SetUp() override
 	{
+		MockSprinklerController *mock = new MockSprinklerController();
 		// Set up the options for the SprinklerHeadController
-		options.SleepMSFunction = MockToggleFunctions::SleepMS;
+		options.ControllerImplementation = mock;
 		options.NumHeads = 4;
-		options.TogglePumpFunction = MockToggleFunctions::TogglePump;
 		options.PumpDelay = 1000;
-		options.ToggleHeadFunction = MockToggleFunctions::ToggleHead;
 		options.HeadOnTime = 500;
 		options.HeadOffTime = 500;
 
