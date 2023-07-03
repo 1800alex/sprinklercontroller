@@ -10,6 +10,12 @@ LINUX_TEST_DIR=build/test
 
 pico:
 	@mkdir -p ${PICO_BUILD_DIR}
+	@docker build -t pico-builder-image pico.dockerfile
+	@docker create --name pico-builder-container pico-builder-image
+	#docker cp pico-builder-container:/project/src/build/blink.uf2 ./blink.uf2
+
+pico.raw:
+	@mkdir -p ${PICO_BUILD_DIR}
 	@cd ${PICO_BUILD_DIR} && PICO_SDK_FETCH_FROM_GIT=1 RASPBERRY_PI_PICO=1 cmake ../.. && PICO_SDK_FETCH_FROM_GIT=1 RASPBERRY_PI_PICO=1 cmake --build .
 	@make --no-print-directory compile_commands
 
@@ -31,3 +37,6 @@ clean:
 
 compile_commands:
 	@cp -f ${LINUX_BUILD_DIR}/compile_commands.json ./
+
+pico_dev:
+	@cd docker/dev/pico && docker build -t pico-builder-image .

@@ -10,3 +10,9 @@ The Raspberry Pi Pico is a low-cost, high-performance microcontroller board with
 Pico uses an on-board buck-boost SMPS which is able to generate the required 3.3 volts (to power RP2040 and externalcircuitry) from a wide range of input voltages (~1.8 to 5.5V). This allows significant flexibility in powering the unit from various sources such as a single Lithium-Ion cell, or 3 AA cells in series. Battery chargers can also be very easily integrated with the Pico powerchain. Reprogramming the Pico's flash memory can be done using USB (simply drag and drop a file onto the Pico which appears as a mass storage device) or via the Serial Wire Debug (SWD) port. The SWD port can also be used to interactively debug coderunning on the RP2040
 
 Pico has been designed to use either soldered 0.1" pin-headers (it is one 0.1" pitch wider than a standard 40-pin DIP package) or can be used as a surface mountable "module", as the user IO pins are also castellated. There are SMT pads underneath the USB connector and BOOTSEL button, which allow these signals to be accessed if used as a reflow-soldered SMT module.
+
+
+## github actions
+
+see this
+https://www.digikey.com/en/maker/projects/continuous-deployment-using-docker-and-github-actions/d9d18e19361647dbb49070ce6f96c2ea
