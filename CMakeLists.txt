@@ -47,10 +47,10 @@ if(LINUX_TARGET)
     )
     add_executable(spc ${COMMON_SOURCES} ${LINUX_SOURCES})
 
-    # Generate compile_flags.txt for Linux development
-    set(COMPILE_FLAGS "-DLINUX -std=c++17 -Wall -Wextra")
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-    file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
+    # # Generate compile_flags.txt for Linux development
+    # set(COMPILE_FLAGS "-DLINUX -std=c++17 -Wall -Wextra")
+    # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 
 else()
     # Raspberry Pi Pico target
@@ -60,7 +60,7 @@ else()
     # Pull in SDK (must be before project)
     include(inc/pico/pico_sdk_import.cmake)
 
-    include(inc/pico/pico_extras_import_optional.cmake)
+    # include(inc/pico/pico_extras_import_optional.cmake)
 
     if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
         message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
@@ -83,12 +83,6 @@ else()
     # create map/bin/hex file etc.
     pico_add_extra_outputs(spc)
 
-    # Add blink example
-    # add_subdirectory(blink)
-
-    # Add hello world example
-    # add_subdirectory(hello_world)
-
     add_compile_options(-Wall
             -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
             -Wno-unused-function # we have some for the docs that aren't called
@@ -96,13 +90,6 @@ else()
     if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
         add_compile_options(-Wno-maybe-uninitialized)
     endif()
-
-    # Add linker script for Pico
-    # add_link_options(-T${CMAKE_SOURCE_DIR}/pico_sdk/src/rp2_common/pico_base/include/pico/bootrom/pico_base.ld)
-
-    # Include the Pico SDK
-    # include_directories(pico_sdk/src/rp2_common/pico_base/include)
-    # include_directories(pico_sdk/src/rp2_common/pico_runtime)
 
     # Generate compile_flags.txt for Pico development
     # set(COMPILE_FLAGS "-std=c++11")
@@ -134,8 +121,4 @@ if(LINUX_TARGET)
     # Run the tests
     enable_testing()
     add_test(NAME spctest COMMAND spctest)
-
-    # # Set up testing
-    # enable_testing()
-    # add_subdirectory(test)
 endif()
