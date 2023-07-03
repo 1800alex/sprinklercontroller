@@ -41,7 +41,7 @@ COPY ./ /project/src/
 RUN \
     mkdir -p /project/src/build && \
     cd /project/src/build && \
-    cmake .. && \
+    cmake ../example && \
     cmake --build .
     
 # Command that will be invoked when the container starts
