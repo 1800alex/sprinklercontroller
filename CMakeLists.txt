@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(spc C CXX)
+project(spc C CXX ASM)
 
 # Check the target platform
 if(DEFINED ENV{RASPBERRY_PI_PICO})
@@ -70,7 +70,6 @@ else()
     # Initialize the SDK
     pico_sdk_init()
 
-    include(inc/pico/example_auto_set_url.cmake)
     # Add blink example
     # add_subdirectory(blink)
 
