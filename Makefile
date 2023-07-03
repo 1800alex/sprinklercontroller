@@ -10,7 +10,7 @@ LINUX_TEST_DIR=build/test
 
 pico:
 	@mkdir -p ${PICO_BUILD_DIR}
-	@docker build -t pico-builder-image pico.dockerfile
+	@docker build -t pico-builder-image -f pico.dockerfile
 	@docker create --name pico-builder-container pico-builder-image
 	#docker cp pico-builder-container:/project/src/build/blink.uf2 ./blink.uf2
 
