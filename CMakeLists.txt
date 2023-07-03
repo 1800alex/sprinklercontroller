@@ -98,8 +98,7 @@ if(PI_TARGET)
     file(GLOB_RECURSE PICO_SOURCES
         "${CMAKE_SOURCE_DIR}/src/main.cpp"
     )
-    add_executable(${PROJECT_NAME} "${CMAKE_SOURCE_DIR}/pico/main.c")
-    # add_executable(${PROJECT_NAME} ${COMMON_SOURCES} ${PICO_SOURCES})
+    add_executable(${PROJECT_NAME} ${COMMON_SOURCES} ${PICO_SOURCES})
 
     # pull in common dependencies
     target_link_libraries(${PROJECT_NAME} pico_stdlib)
