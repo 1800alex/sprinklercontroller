@@ -5,7 +5,7 @@ FROM ubuntu:22.04
 RUN \
     apt update && \
     apt install -y git python3 && \
-    apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+    apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib build-essential
     
 # Install Pico SDK
 RUN \
