@@ -2,11 +2,11 @@ PICO_BUILD_DIR=build/pico
 PICO_TARGET=build/pico/spc
 LINUX_BUILD_DIR=build/linux
 LINUX_TARGET=build/linux/spc
-LINUX_TEST_DIR=build/test
+HOST_TARGET=build/host/spc
 
 .DEFAULT_GOAL := linux
 
-.PHONY: pico linux test compile_commands clean
+.PHONY: pico linux host test compile_commands clean
 
 pico:
 	@mkdir -p ${PICO_BUILD_DIR}
@@ -21,7 +21,12 @@ pico.raw:
 
 linux:
 	@mkdir -p ${LINUX_BUILD_DIR}
-	@cd ${LINUX_BUILD_DIR} && cmake ../.. && cmake --build .
+	@docker build -t linux-builder-image -f linux.dockerfile .
+	@docker create --name linux-builder-container linux-builder-image
+
+host:
+	@mkdir -p ${LINUX_BUILD_DIR}
+	@cd ${LINUX_BUILD_DIR} && cmake ../.. && cmake --build . && ctest
 	@make --no-print-directory compile_commands
 
 test: linux
