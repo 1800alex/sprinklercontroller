@@ -18,7 +18,7 @@ file(GLOB_RECURSE COMMON_SOURCES
     "${CMAKE_SOURCE_DIR}/lib/*.cpp"
 )
 
-add_library(spclib ${COMMON_SOURCES})
+# add_library(spclib ${COMMON_SOURCES})
 
 # Set compiler flags and options for each target
 if(LINUX_TARGET)
@@ -41,7 +41,9 @@ if(LINUX_TARGET)
 
     # Add your Pico source files
     file(GLOB_RECURSE LINUX_SOURCES
-        "${CMAKE_SOURCE_DIR}/src/main.cpp"
+        "${CMAKE_SOURCE_DIR}/src/main.cpp",
+        "${CMAKE_SOURCE_DIR}/impl/sim/*.c"
+        "${CMAKE_SOURCE_DIR}/impl/sim/*.cpp"
     )
     add_executable(spc ${COMMON_SOURCES} ${LINUX_SOURCES})
 

@@ -2,8 +2,8 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace SprinklerController {
-SprinklerHeadController::SprinklerHeadController(Options opts)
+namespace SprinklerHeadController {
+Controller::Controller(Options opts)
 	: cycle(0),
 	  ctrl(opts.ControllerImplementation),
 	  numHeads(opts.NumHeads),
@@ -20,35 +20,31 @@ SprinklerHeadController::SprinklerHeadController(Options opts)
 	}
 }
 
-SprinklerHeadController::~SprinklerHeadController()
+Controller::~Controller()
 {
 	delete[] ledState;
 }
 
-void SprinklerHeadController::Cycle()
+void Controller::Cycle()
 {
 	ctrl->TogglePump(this, true);
-	ctrl->SleepMS(this, pumpDelay);
 
 	for(uint8_t i = 0; i < numHeads; ++i)
 	{
 		uint8_t currentLED = (nextStartIndex + i) % numHeads;
 		ctrl->ToggleHead(this, currentLED, true);
 		ledState[currentLED] = 1;
-		ctrl->SleepMS(this, headOnTime);
 		ctrl->ToggleHead(this, currentLED, false);
 		ledState[currentLED] = 0;
-		ctrl->SleepMS(this, headOffTime);
 	}
 
 	ctrl->TogglePump(this, false);
-	ctrl->SleepMS(this, pumpDelay);
 
 	nextStartIndex = (nextStartIndex + 1) % numHeads;
 	cycle++;
 }
 
-uint8_t SprinklerHeadController::GetState(uint8_t index)
+uint8_t Controller::GetState(uint8_t index)
 {
 	if(index < numHeads)
 	{
@@ -60,10 +56,10 @@ uint8_t SprinklerHeadController::GetState(uint8_t index)
 	}
 }
 
-uint8_t SprinklerHeadController::GetNumHeads(void) { return numHeads; }
+uint8_t Controller::GetNumHeads(void) { return numHeads; }
 
-int SprinklerHeadController::GetCycle(void)
+int Controller::GetCycle(void)
 {
 	return cycle;
 }
-} // namespace SprinklerController
+} // namespace SprinklerHeadController

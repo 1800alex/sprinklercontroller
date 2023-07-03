@@ -1,12 +1,8 @@
 #include "gtest/gtest.h"
 #include <lib/SprinklerHeadController.hpp>
 
-class MockSprinklerController : public SprinklerController::ISprinklerHeadController {
+class MockSprinklerController : public SprinklerHeadController::IController {
 public:
-    void SleepMS(void *controller, int ms) override {
-        // Custom implementation for toggling the pump
-    }
-
     void TogglePump(void *controller, bool state) override {
         // Custom implementation for toggling the pump
     }
@@ -30,7 +26,7 @@ protected:
 		options.HeadOffTime = 500;
 
 		// Create an instance of the SprinklerHeadController
-		controller = new SprinklerController::SprinklerHeadController(options);
+		controller = new SprinklerHeadController::Controller(options);
 	}
 
 	void TearDown() override
@@ -40,8 +36,8 @@ protected:
 	}
 
 	// Test member variables
-	SprinklerController::Options options;
-	SprinklerController::SprinklerHeadController *controller;
+	SprinklerHeadController::Options options;
+	SprinklerHeadController::Controller *controller;
 };
 
 // Test case for SprinklerHeadController::GetState()

@@ -5,28 +5,27 @@
 #include <unistd.h>
 #endif
 
-namespace SprinklerController {
+namespace SprinklerHeadController {
 // Interface for the SprinklerHeadController
-class ISprinklerHeadController {
+class IController {
 public:
-	virtual void SleepMS(void *controller, int ms) = 0;
 	virtual void TogglePump(void *controller, bool state) = 0;
 	virtual void ToggleHead(void *controller, uint8_t index, bool state) = 0;
 };
 
 struct Options
 {
-	ISprinklerHeadController* ControllerImplementation;
+	IController* ControllerImplementation;
 	uint8_t NumHeads;
 	uint32_t PumpDelay;
 	uint32_t HeadOnTime;
 	uint32_t HeadOffTime;
 };
 
-class SprinklerHeadController {
+class Controller {
 public:
-	SprinklerHeadController(Options opts);
-	~SprinklerHeadController();
+	Controller(Options opts);
+	~Controller();
 
 	void Cycle();
 	uint8_t GetState(uint8_t index);
@@ -35,7 +34,7 @@ public:
 
 private:
 	uint32_t cycle;
-	ISprinklerHeadController* ctrl;
+	IController* ctrl;
 	uint8_t numHeads;
 	uint32_t pumpDelay;
 	uint32_t headOnTime;
@@ -43,4 +42,4 @@ private:
 	uint8_t nextStartIndex;
 	uint8_t *ledState;
 };
-} // namespace SprinklerController
+} // namespace SprinklerHeadController
