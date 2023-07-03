@@ -18,9 +18,12 @@ RUN \
     
 # Set the Pico SDK environment variable
 ENV PICO_SDK_PATH=/project/pico-sdk/
+ENV PICO_PLATFORM=rp2040
+ENV PICO_BOARD=pico
+ENV RASPBERRY_PI_PICO=1
 
 # Copy in our source files
-COPY ./* /project/src/
+COPY ./ /project/src/
 
 # Build project
 RUN \
