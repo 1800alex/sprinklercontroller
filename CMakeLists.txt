@@ -78,9 +78,6 @@ if(LINUX_TARGET)
 endif()
 
 if(PI_TARGET)
-    set(CMAKE_C_COMPILER arm-none-eabi-gcc)
-    set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
-    
     # Include build functions from Pico SDK
     include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 

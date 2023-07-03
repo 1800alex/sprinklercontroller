@@ -34,7 +34,6 @@ COPY ./ /project/src/
 
 # Build project
 RUN \
-    arm-none-eabi-gcc --version && \
     mkdir -p /project/src/build && \
     cd /project/src/build && \
     cmake .. && \
