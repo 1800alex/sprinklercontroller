@@ -1,8 +1,5 @@
 PICO_BUILD_DIR=build/pico
-PICO_TARGET=build/pico/spc
 LINUX_BUILD_DIR=build/linux
-LINUX_TARGET=build/linux/spc
-HOST_TARGET=build/host/spc
 
 .DEFAULT_GOAL := linux
 
@@ -11,12 +8,13 @@ HOST_TARGET=build/host/spc
 pico:
 	@mkdir -p ${PICO_BUILD_DIR}
 	@docker build -t pico-builder-image -f pico.dockerfile .
+	-@docker rm pico-builder-container
 	@docker create --rm --name pico-builder-container pico-builder-image
 	docker cp pico-builder-container:/project/src/build/spc.uf2 ${PICO_BUILD_DIR}/spc.uf2
 
 host.pico:
 	@mkdir -p ${PICO_BUILD_DIR}
-	@cd ${PICO_BUILD_DIR} && PICO_SDK_FETCH_FROM_GIT=1 RASPBERRY_PI_PICO=1 cmake ../.. && PICO_SDK_FETCH_FROM_GIT=1 RASPBERRY_PI_PICO=1 cmake --build .
+	@cd ${PICO_BUILD_DIR} && RASPBERRY_PI_PICO=1 cmake ../.. && RASPBERRY_PI_PICO=1 cmake --build .
 	@make --no-print-directory compile_commands
 
 linux:
@@ -33,4 +31,4 @@ host.linux:
 	@make --no-print-directory compile_commands
 
 clean:
-	-@rm -rf ${PICO_BUILD_DIR} ${LINUX_BUILD_DIR} ${LINUX_TEST_DIR} $(LINUX_TARGET) $(PICO_TARGET)
+	-@rm -rf ${PICO_BUILD_DIR} ${LINUX_BUILD_DIR} ${LINUX_TEST_DIR}
