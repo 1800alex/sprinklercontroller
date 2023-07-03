@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - name: install deps manually
-      run: sudo apt-get install build-essential cmake
+      run: sudo apt-get install build-essential cmake gcc-arm-none-eabi
     - uses: actions/checkout@v3
     - name: clean
       run: make clean
