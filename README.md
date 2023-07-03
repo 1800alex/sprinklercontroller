@@ -11,6 +11,9 @@ Pico uses an on-board buck-boost SMPS which is able to generate the required 3.3
 
 Pico has been designed to use either soldered 0.1" pin-headers (it is one 0.1" pitch wider than a standard 40-pin DIP package) or can be used as a surface mountable "module", as the user IO pins are also castellated. There are SMT pads underneath the USB connector and BOOTSEL button, which allow these signals to be accessed if used as a reflow-soldered SMT module.
 
+## programming
+
+https://circuitdigest.com/microcontroller-projects/how-to-program-raspberry-pi-pico-using-c
 
 ## github actions
 
