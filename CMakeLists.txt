@@ -45,61 +45,14 @@ if(LINUX_TARGET)
         "${CMAKE_SOURCE_DIR}/impl/sim/*.c"
         "${CMAKE_SOURCE_DIR}/impl/sim/*.cpp"
     )
-    add_executable(spc ${COMMON_SOURCES} ${LINUX_SOURCES})
+    add_executable(${PROJECT_NAME} ${COMMON_SOURCES} ${LINUX_SOURCES})
 
     # # Generate compile_flags.txt for Linux development
     # set(COMPILE_FLAGS "-DLINUX -std=c++17 -Wall -Wextra")
     # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 
-else()
-    # Raspberry Pi Pico target
-    set(CMAKE_C_STANDARD 11)
-    set(CMAKE_CXX_STANDARD 17)
-
-    # Pull in SDK (must be before project)
-    include(inc/pico/pico_sdk_import.cmake)
-
-    # include(inc/pico/pico_extras_import_optional.cmake)
-
-    if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
-        message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
-    endif()
-
-    # Initialize the SDK
-    pico_sdk_init()
-
-    include_directories("${CMAKE_SOURCE_DIR}")
-
-    # Add your Pico source files
-    file(GLOB_RECURSE PICO_SOURCES
-        "${CMAKE_SOURCE_DIR}/src/main.cpp"
-    )
-    add_executable(spc ${COMMON_SOURCES} ${PICO_SOURCES})
-
-    # pull in common dependencies
-    target_link_libraries(spc pico_stdlib)
-
-    # create map/bin/hex file etc.
-    pico_add_extra_outputs(spc)
-
-    add_compile_options(-Wall
-            -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
-            -Wno-unused-function # we have some for the docs that aren't called
-            )
-    if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-        add_compile_options(-Wno-maybe-uninitialized)
-    endif()
-
-    # Generate compile_flags.txt for Pico development
-    # set(COMPILE_FLAGS "-std=c++11")
-    # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-    # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
-endif()
-
-# Link external libraries for Linux target
-if(LINUX_TARGET)
-    target_link_libraries(spc ${CURSES_LIBRARIES} ${GTEST_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES} ${GTEST_LIBRARIES})
 
     # Locate the Google Test package
     find_package(GTest REQUIRED)
@@ -121,4 +74,52 @@ if(LINUX_TARGET)
     # Run the tests
     enable_testing()
     add_test(NAME spctest COMMAND spctest)
+endif()
+
+if(PI_TARGET)
+    # Include build functions from Pico SDK
+    include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+
+    # Raspberry Pi Pico target
+    set(CMAKE_C_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 17)
+
+    if (PICO_SDK_VERSION_STRING VERSION_LESS "1.3.0")
+        message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.3.0 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
+    endif()
+
+    # Initialize the SDK
+    pico_sdk_init()
+
+    include_directories("${CMAKE_SOURCE_DIR}")
+
+    # Add your Pico source files
+    file(GLOB_RECURSE PICO_SOURCES
+        "${CMAKE_SOURCE_DIR}/src/main.cpp"
+    )
+    add_executable(${PROJECT_NAME} ${PICO_SOURCES})
+    # add_executable(${PROJECT_NAME} ${COMMON_SOURCES} ${PICO_SOURCES})
+
+    # pull in common dependencies
+    target_link_libraries(${PROJECT_NAME} pico_stdlib)
+
+    # Enable usb output, disable uart output
+    pico_enable_stdio_usb(${PROJECT_NAME} 1)
+    pico_enable_stdio_uart(${PROJECT_NAME} 0)
+
+    # create map/bin/hex file etc.
+    pico_add_extra_outputs(${PROJECT_NAME})
+
+    add_compile_options(-Wall
+            -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
+            -Wno-unused-function # we have some for the docs that aren't called
+            )
+    if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        add_compile_options(-Wno-maybe-uninitialized)
+    endif()
+
+    # Generate compile_flags.txt for Pico development
+    # set(COMPILE_FLAGS "-std=c++11")
+    # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 endif()

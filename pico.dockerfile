@@ -9,9 +9,9 @@ RUN \
     
 # Install Pico SDK
 RUN \
-    mkdir -p /project/src/ && \
+    mkdir -p /project && \
     cd /project/ && \
-    git clone https://github.com/raspberrypi/pico-sdk.git --branch master && \
+    git clone https://github.com/raspberrypi/pico-sdk.git --branch v1.5.1 && \
     cd pico-sdk/ && \
     git submodule update --init && \
     cd /
