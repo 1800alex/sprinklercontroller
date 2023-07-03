@@ -1,0 +1,21 @@
+name: Raspberry Pi Pico CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: install deps manually
+      run: sudo apt-get install build-essential cmake
+    - uses: actions/checkout@v3
+    - name: clean
+      run: make clean
+    - name: make pico
+      run: make pico

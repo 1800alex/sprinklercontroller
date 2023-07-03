@@ -10,7 +10,7 @@ LINUX_TEST_DIR=build/test
 
 pico:
 	@mkdir -p ${PICO_BUILD_DIR}
-	@cd ${PICO_BUILD_DIR} && RASPBERRY_PI_PICO=1 cmake ../.. && RASPBERRY_PI_PICO=1 cmake --build .
+	@cd ${PICO_BUILD_DIR} && PICO_SDK_FETCH_FROM_GIT=1 RASPBERRY_PI_PICO=1 cmake ../.. && PICO_SDK_FETCH_FROM_GIT=1 RASPBERRY_PI_PICO=1 cmake --build .
 	@make --no-print-directory compile_commands
 
 linux:
