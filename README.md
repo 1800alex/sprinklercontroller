@@ -1,3 +1,5 @@
+# sprinker controller
+![c-cpp](https://github.com/1800alex/sprinklercontroller/workflows/c-cpp/badge.svg?branch=master)
 
 ## raspberry pi pico
 
