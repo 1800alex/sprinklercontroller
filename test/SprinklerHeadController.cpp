@@ -3,13 +3,20 @@
 
 class MockSprinklerController : public SprinklerHeadController::IController {
 public:
-    void TogglePump(void *controller, bool state) override {
-        // Custom implementation for toggling the pump
-    }
+	void SleepMS(void *controller, int ms) override
+	{
+		// Custom implementation for toggling the pump
+	}
 
-    void ToggleHead(void *controller, uint8_t index, bool state) override {
-        // Custom implementation for toggling a sprinkler head
-    }
+	void TogglePump(void *controller, bool state) override
+	{
+		// Custom implementation for toggling the pump
+	}
+
+	void ToggleHead(void *controller, uint8_t index, bool state) override
+	{
+		// Custom implementation for toggling a sprinkler head
+	}
 };
 
 // Fixture for the SprinklerHeadController test

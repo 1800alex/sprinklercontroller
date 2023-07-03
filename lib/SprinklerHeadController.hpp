@@ -9,13 +9,14 @@ namespace SprinklerHeadController {
 // Interface for the SprinklerHeadController
 class IController {
 public:
+	virtual void SleepMS(void *controller, int ms) = 0;
 	virtual void TogglePump(void *controller, bool state) = 0;
 	virtual void ToggleHead(void *controller, uint8_t index, bool state) = 0;
 };
 
 struct Options
 {
-	IController* ControllerImplementation;
+	IController *ControllerImplementation;
 	uint8_t NumHeads;
 	uint32_t PumpDelay;
 	uint32_t HeadOnTime;
@@ -34,7 +35,7 @@ public:
 
 private:
 	uint32_t cycle;
-	IController* ctrl;
+	IController *ctrl;
 	uint8_t numHeads;
 	uint32_t pumpDelay;
 	uint32_t headOnTime;

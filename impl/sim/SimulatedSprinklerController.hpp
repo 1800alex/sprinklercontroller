@@ -11,6 +11,7 @@ public:
 
 	~SimulatedSprinklerController();
 	void Init(void *controller);
+	void SleepMS(void *controller, int ms) override;
 	void TogglePump(void *controller, bool state) override;
 	void ToggleHead(void *controller, uint8_t index, bool state) override;
 
@@ -21,7 +22,6 @@ private:
 		bool state);
 	void displaySetup(SprinklerHeadController::Controller *controller);
 	void displayEnd(void);
-	void SleepMS(void *controller, int ms);
 };
 
 #endif

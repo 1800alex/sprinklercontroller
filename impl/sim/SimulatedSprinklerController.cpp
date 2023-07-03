@@ -66,15 +66,6 @@ void SimulatedSprinklerController::TogglePump(void *controller, bool state)
 	SprinklerHeadController::Controller *spc = static_cast<SprinklerHeadController::Controller *>(controller);
 	displayPumpStatus(spc, state);
 	refresh();
-
-	if(true == state)
-	{
-		SleepMS(spc, 1000);
-	}
-	else
-	{
-		SleepMS(spc, 1000);
-	}
 }
 
 void SimulatedSprinklerController::ToggleHead(void *controller, uint8_t index, bool state)
@@ -82,15 +73,6 @@ void SimulatedSprinklerController::ToggleHead(void *controller, uint8_t index, b
 	SprinklerHeadController::Controller *spc = static_cast<SprinklerHeadController::Controller *>(controller);
 	displayHeadStatus(spc, index, state);
 	refresh();
-
-	if(true == state)
-	{
-		SleepMS(spc, 500);
-	}
-	else
-	{
-		SleepMS(spc, 200);
-	}
 }
 
 #endif

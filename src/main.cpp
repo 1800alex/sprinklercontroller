@@ -23,7 +23,7 @@ int main()
 	SprinklerHeadController::Options opts = {
 		.ControllerImplementation = sim,
 		.NumHeads = 8,
-		.PumpDelay = 500,
+		.PumpDelay = 1000,
 		.HeadOnTime = 500,
 		.HeadOffTime = 200,
 	};
