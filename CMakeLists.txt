@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(spc)
+project(spc C CXX)
 
 # Check the target platform
 if(DEFINED ENV{RASPBERRY_PI_PICO})
