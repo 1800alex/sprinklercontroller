@@ -14,11 +14,11 @@ COPY ./ /project/src/
 
 # Build project
 RUN \
-    mkdir -p /project/src/build/linux && \
-    cd /project/src/build/linux && \
-    cmake ../.. && \
+    mkdir -p /project/src/build && \
+    cd /project/src/build && \
+    cmake .. && \
     cmake --build . && \
-    ctest
+    ctest && find /project/src/build
     
 # Command that will be invoked when the container starts
 ENTRYPOINT ["/bin/bash"]

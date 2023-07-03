@@ -41,15 +41,16 @@ if(LINUX_TARGET)
 
     # Add your Pico source files
     file(GLOB_RECURSE LINUX_SOURCES
-        "${CMAKE_SOURCE_DIR}/src/main.cpp",
+        "${CMAKE_SOURCE_DIR}/src/main.cpp"
         "${CMAKE_SOURCE_DIR}/impl/sim/*.c"
         "${CMAKE_SOURCE_DIR}/impl/sim/*.cpp"
     )
     add_executable(${PROJECT_NAME} ${COMMON_SOURCES} ${LINUX_SOURCES})
 
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
     # # Generate compile_flags.txt for Linux development
     # set(COMPILE_FLAGS "-DLINUX -std=c++17 -Wall -Wextra")
-    # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 
     target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES} ${GTEST_LIBRARIES})
@@ -118,8 +119,9 @@ if(PI_TARGET)
         add_compile_options(-Wno-maybe-uninitialized)
     endif()
 
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
     # Generate compile_flags.txt for Pico development
     # set(COMPILE_FLAGS "-std=c++11")
-    # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 endif()

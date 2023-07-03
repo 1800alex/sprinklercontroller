@@ -1,0 +1,27 @@
+name: Raspberry Pi Pico CI Release
+
+# Only deploy when a new tag is pushed
+on:
+    push:
+        tags:
+          - "v*.*.*"
+          
+# Allow this workflow to write back to the repository
+permissions:
+    contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: clean
+      run: make clean
+    - name: make pico
+      run: make pico
+    - name: release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: build/pico/spc.uf2
+        body_path: CHANGELOG.md
