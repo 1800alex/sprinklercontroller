@@ -56,7 +56,6 @@ else()
     # Raspberry Pi Pico target
     set(CMAKE_C_STANDARD 11)
     set(CMAKE_CXX_STANDARD 17)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdlib")
 
     # Pull in SDK (must be before project)
     include(inc/pico/pico_sdk_import.cmake)
@@ -69,6 +68,20 @@ else()
 
     # Initialize the SDK
     pico_sdk_init()
+
+    include_directories("${CMAKE_SOURCE_DIR}")
+
+    # Add your Pico source files
+    file(GLOB_RECURSE PICO_SOURCES
+        "${CMAKE_SOURCE_DIR}/src/main.cpp"
+    )
+    add_executable(spc ${COMMON_SOURCES} ${PICO_SOURCES})
+
+    # pull in common dependencies
+    target_link_libraries(spc pico_stdlib)
+
+    # create map/bin/hex file etc.
+    pico_add_extra_outputs(spc)
 
     # Add blink example
     # add_subdirectory(blink)
@@ -84,31 +97,17 @@ else()
         add_compile_options(-Wno-maybe-uninitialized)
     endif()
 
-    include_directories("${CMAKE_SOURCE_DIR}")
-
     # Add linker script for Pico
-    add_link_options(-T${CMAKE_SOURCE_DIR}/pico_sdk/src/rp2_common/pico_base/include/pico/bootrom/pico_base.ld)
+    # add_link_options(-T${CMAKE_SOURCE_DIR}/pico_sdk/src/rp2_common/pico_base/include/pico/bootrom/pico_base.ld)
 
     # Include the Pico SDK
-    include_directories(pico_sdk/src/rp2_common/pico_base/include)
-    include_directories(pico_sdk/src/rp2_common/pico_runtime)
-
-    # Add your Pico source files
-    file(GLOB_RECURSE PICO_SOURCES
-        "${CMAKE_SOURCE_DIR}/src/main.cpp"
-    )
-    add_executable(spc ${COMMON_SOURCES} ${PICO_SOURCES})
-
-    # pull in common dependencies
-    target_link_libraries(spc pico_stdlib)
-
-    # create map/bin/hex file etc.
-    pico_add_extra_outputs(spc)
+    # include_directories(pico_sdk/src/rp2_common/pico_base/include)
+    # include_directories(pico_sdk/src/rp2_common/pico_runtime)
 
     # Generate compile_flags.txt for Pico development
-    set(COMPILE_FLAGS "-std=c++11")
-    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-    file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
+    # set(COMPILE_FLAGS "-std=c++11")
+    # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+    # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 endif()
 
 # Link external libraries for Linux target
