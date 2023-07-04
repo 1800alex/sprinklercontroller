@@ -29,7 +29,8 @@ public:
 	~Controller();
 
 	void Cycle();
-	uint8_t GetState(uint8_t index);
+	uint8_t GetHeadState(uint8_t index);
+	uint8_t GetPumpState(void);
 	int GetCycle(void);
 	uint8_t GetNumHeads(void);
 
@@ -37,10 +38,11 @@ private:
 	uint32_t cycle;
 	IController *ctrl;
 	uint8_t numHeads;
+	uint8_t pumpState;
 	uint32_t pumpDelay;
 	uint32_t headOnTime;
 	uint32_t headOffTime;
 	uint8_t nextStartIndex;
-	uint8_t *ledState;
+	uint8_t *headState;
 };
 } // namespace SprinklerHeadController

@@ -36,6 +36,12 @@ FetchContent_Declare(
   BUILD_COMMAND ""
 )
 
+# Fetch FTXUI
+FetchContent_Declare(ftxui
+  GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
+  GIT_TAG v4.0.0
+)
+
 FetchContent_GetProperties(cjson)
 if(NOT cjson_POPULATED)
   # include cjson, but don't build it - we will manually compile the files we want
@@ -54,6 +60,12 @@ file(GLOB_RECURSE COMMON_SOURCES
 if(LINUX_TARGET)
     FetchContent_MakeAvailable(googletest)
 
+    FetchContent_GetProperties(ftxui)
+    if(NOT ftxui_POPULATED)
+      FetchContent_Populate(ftxui)
+      add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
+    endif()
+
     # Linux target
     add_compile_definitions(LINUX)
     set(CMAKE_C_COMPILER gcc)
@@ -61,10 +73,9 @@ if(LINUX_TARGET)
     set(CMAKE_CXX_STANDARD 17)
 
     # Add external libraries for Linux
-    find_package(Curses REQUIRED)
+    # find_package(Curses REQUIRED)
 
     include_directories("${CMAKE_SOURCE_DIR}")
-    include_directories(${CURSES_INCLUDE_DIRS})
     include_directories(${cjson_SOURCE_DIR})
 
     # Add your Pico source files
@@ -81,7 +92,12 @@ if(LINUX_TARGET)
     # set(COMPILE_FLAGS "-DLINUX -std=c++17 -Wall -Wextra")
     # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 
-    target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE ftxui::screen
+        PRIVATE ftxui::dom
+        PRIVATE ftxui::component # Not needed for this example.
+    )
+
 
     ## Testing
     # Add Google Test

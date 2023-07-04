@@ -53,7 +53,7 @@ TEST_F(SprinklerHeadControllerTest, GetState)
 	// Initially, all states should be 0
 	for(uint8_t i = 0; i < options.NumHeads; ++i)
 	{
-		EXPECT_EQ(controller->GetState(i), 0);
+		EXPECT_EQ(controller->GetHeadState(i), 0);
 	}
 }
 

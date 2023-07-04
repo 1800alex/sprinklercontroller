@@ -3,12 +3,14 @@
 
 #ifdef LINUX
 
-#include <ncurses.h>
 #include <unistd.h>
+#include "ftxui/component/screen_interactive.hpp"
+
 
 class SimulatedSprinklerController : public SprinklerHeadController::IController {
 public:
 
+	SimulatedSprinklerController();
 	~SimulatedSprinklerController();
 	void Init(void *controller);
 	void SleepMS(void *controller, int ms) override;
@@ -22,6 +24,8 @@ private:
 		bool state);
 	void displaySetup(SprinklerHeadController::Controller *controller);
 	void displayEnd(void);
+
+	ftxui::ScreenInteractive* screen;
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "SprinklerHeadController.hpp"
 #include <cstdint>
 #include <cstdlib>
+#include <memory.h>
 
 namespace SprinklerHeadController {
 Controller::Controller(Options opts)
@@ -11,22 +12,26 @@ Controller::Controller(Options opts)
 	  headOnTime(opts.HeadOnTime),
 	  headOffTime(opts.HeadOffTime),
 	  nextStartIndex(0),
-	  ledState(new uint8_t[opts.NumHeads])
+	  headState(new uint8_t[opts.NumHeads])
 {
-	if(ledState == nullptr)
+	if(headState == nullptr)
 	{
 		// Handle memory allocation failure
 		exit(1);
 	}
+
+	pumpState = 0;
+	memset(headState, 0, sizeof(uint8_t) * opts.NumHeads);
 }
 
 Controller::~Controller()
 {
-	delete[] ledState;
+	delete[] headState;
 }
 
 void Controller::Cycle()
 {
+	pumpState = 1;
 	ctrl->TogglePump(this, true);
 	ctrl->SleepMS(this, pumpDelay);
 
@@ -34,30 +39,36 @@ void Controller::Cycle()
 	{
 		uint8_t currentLED = (nextStartIndex + i) % numHeads;
 		ctrl->ToggleHead(this, currentLED, true);
-		ledState[currentLED] = 1;
+		headState[currentLED] = 1;
 		ctrl->SleepMS(this, headOnTime);
 		ctrl->ToggleHead(this, currentLED, false);
-		ledState[currentLED] = 0;
+		headState[currentLED] = 0;
 		ctrl->SleepMS(this, headOffTime);
 	}
 
 	ctrl->TogglePump(this, false);
+	pumpState = 0;
 	ctrl->SleepMS(this, pumpDelay);
 
 	nextStartIndex = (nextStartIndex + 1) % numHeads;
 	cycle++;
 }
 
-uint8_t Controller::GetState(uint8_t index)
+uint8_t Controller::GetHeadState(uint8_t index)
 {
 	if(index < numHeads)
 	{
-		return ledState[index];
+		return headState[index];
 	}
 	else
 	{
 		return -1;
 	}
+}
+
+uint8_t Controller::GetPumpState(void)
+{
+	return pumpState;
 }
 
 uint8_t Controller::GetNumHeads(void) { return numHeads; }
