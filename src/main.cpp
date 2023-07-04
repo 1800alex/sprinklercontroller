@@ -40,7 +40,6 @@ int main()
 	printf("%s\n",str);
 	free(str);
 
-#if 0
 	SimulatedSprinklerController *sim = new SimulatedSprinklerController();
 	SprinklerHeadController::Options opts = {
 		.ControllerImplementation = sim,
@@ -65,7 +64,6 @@ int main()
 	#endif
 
 	// delete controller;
-#endif
 
 	return 0;
 }

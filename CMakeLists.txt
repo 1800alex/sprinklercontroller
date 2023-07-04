@@ -27,7 +27,6 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG        release-1.8.0
 )
-FetchContent_MakeAvailable(googletest)
 
 FetchContent_Declare(
   cjson
@@ -39,9 +38,8 @@ FetchContent_Declare(
 
 FetchContent_GetProperties(cjson)
 if(NOT cjson_POPULATED)
+  # include cjson, but don't build it - we will manually compile the files we want
   FetchContent_Populate(cjson)
-  add_subdirectory(${cjson_SOURCE_DIR} ${cjson_BINARY_DIR})
-#   add_subdirectory(${cjson_SOURCE_DIR} ${cjson_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
 # Add your common source files for both targets
@@ -54,17 +52,20 @@ file(GLOB_RECURSE COMMON_SOURCES
 
 # Set compiler flags and options for each target
 if(LINUX_TARGET)
+    FetchContent_MakeAvailable(googletest)
+
     # Linux target
     add_compile_definitions(LINUX)
     set(CMAKE_C_COMPILER gcc)
     set(CMAKE_CXX_COMPILER g++)
     set(CMAKE_CXX_STANDARD 17)
 
-    include_directories("${CMAKE_SOURCE_DIR}")
-
     # Add external libraries for Linux
     find_package(Curses REQUIRED)
+
+    include_directories("${CMAKE_SOURCE_DIR}")
     include_directories(${CURSES_INCLUDE_DIRS})
+    include_directories(${cjson_SOURCE_DIR})
 
     # Add your Pico source files
     file(GLOB_RECURSE LINUX_SOURCES
@@ -81,8 +82,6 @@ if(LINUX_TARGET)
     # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 
     target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})
-
-    include_directories(${cjson_SOURCE_DIR})
 
     ## Testing
     # Add Google Test
@@ -117,6 +116,7 @@ if(PI_TARGET)
     pico_sdk_init()
 
     include_directories("${CMAKE_SOURCE_DIR}")
+    include_directories(${cjson_SOURCE_DIR})
 
     # Add your Pico source files
     file(GLOB_RECURSE PICO_SOURCES
