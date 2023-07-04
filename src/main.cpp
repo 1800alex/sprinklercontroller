@@ -8,6 +8,8 @@
 #ifdef LINUX
 
 #include <impl/sim/SimulatedSprinklerController.hpp>
+#include <cJSON.h>
+#include <stdlib.h>
 
 #endif
 
@@ -31,6 +33,14 @@ int main()
 #endif
 
 #ifdef LINUX
+	cJSON *obj = cJSON_CreateObject();
+
+	cJSON_AddBoolToObject(obj, "Test", true);
+	char *str = cJSON_Print(obj);
+	printf("%s\n",str);
+	free(str);
+
+#if 0
 	SimulatedSprinklerController *sim = new SimulatedSprinklerController();
 	SprinklerHeadController::Options opts = {
 		.ControllerImplementation = sim,
@@ -52,6 +62,7 @@ int main()
 	{
 		controller.Cycle();
 	}
+	#endif
 
 	// delete controller;
 #endif

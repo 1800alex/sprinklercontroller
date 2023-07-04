@@ -18,13 +18,39 @@ endif()
 
 project(spc C CXX ASM)
 
+# add_library(spclib ${COMMON_SOURCES})
+
+include(FetchContent)
+
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG        release-1.8.0
+)
+FetchContent_MakeAvailable(googletest)
+
+FetchContent_Declare(
+  cjson
+  GIT_REPOSITORY https://github.com/DaveGamble/cJSON.git
+  GIT_TAG        v1.7.15
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+)
+
+FetchContent_GetProperties(cjson)
+if(NOT cjson_POPULATED)
+  FetchContent_Populate(cjson)
+  add_subdirectory(${cjson_SOURCE_DIR} ${cjson_BINARY_DIR})
+#   add_subdirectory(${cjson_SOURCE_DIR} ${cjson_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
 # Add your common source files for both targets
 file(GLOB_RECURSE COMMON_SOURCES
     "${CMAKE_SOURCE_DIR}/lib/*.c"
     "${CMAKE_SOURCE_DIR}/lib/*.cpp"
+    "${cjson_SOURCE_DIR}/cJSON.c"
+    "${cjson_SOURCE_DIR}/cJSON_Utils.c"
 )
-
-# add_library(spclib ${COMMON_SOURCES})
 
 # Set compiler flags and options for each target
 if(LINUX_TARGET)
@@ -40,11 +66,6 @@ if(LINUX_TARGET)
     find_package(Curses REQUIRED)
     include_directories(${CURSES_INCLUDE_DIRS})
 
-    # Add Google Test
-    enable_testing()
-    find_package(GTest REQUIRED)
-    include_directories(${GTEST_INCLUDE_DIRS})
-
     # Add your Pico source files
     file(GLOB_RECURSE LINUX_SOURCES
         "${CMAKE_SOURCE_DIR}/src/main.cpp"
@@ -59,13 +80,13 @@ if(LINUX_TARGET)
     # set(COMPILE_FLAGS "-DLINUX -std=c++17 -Wall -Wextra")
     # file(WRITE ${CMAKE_BINARY_DIR}/compile_flags.txt ${COMPILE_FLAGS})
 
-    target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES} ${GTEST_LIBRARIES})
+    target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})
 
-    # Locate the Google Test package
-    find_package(GTest REQUIRED)
+    include_directories(${cjson_SOURCE_DIR})
 
-    # Include directories
-    include_directories(${GTEST_INCLUDE_DIRS})
+    ## Testing
+    # Add Google Test
+    include_directories(googletest)
 
     file(GLOB_RECURSE TEST_SOURCES
         "${CMAKE_SOURCE_DIR}/test/*.c"
@@ -75,8 +96,8 @@ if(LINUX_TARGET)
     # Add the test executable
     add_executable(spctest ${COMMON_SOURCES} ${TEST_SOURCES})
 
-    # Link against the Google Test library and your project library
-    target_link_libraries(spctest ${GTEST_BOTH_LIBRARIES})
+    # Link against the Google Test library
+    target_link_libraries(spctest gtest_main)
 
     # Run the tests
     enable_testing()

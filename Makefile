@@ -28,7 +28,7 @@ linux:
 host.linux:
 	@mkdir -p ${LINUX_BUILD_DIR}
 	@cd ${LINUX_BUILD_DIR} && cmake ../.. && cmake --build . && ctest
-	@make --no-print-directory compile_commands
+	@cp -f ${LINUX_BUILD_DIR}/compile_commands.json compile_commands.json
 
 clean:
 	-@rm -rf ${PICO_BUILD_DIR} ${LINUX_BUILD_DIR} ${LINUX_TEST_DIR}
