@@ -12,7 +12,7 @@ Controller::Controller(Options opts)
 	  headOnTime(opts.HeadOnTime),
 	  headOffTime(opts.HeadOffTime),
 	  nextStartIndex(0),
-	  headState(new uint8_t[opts.NumHeads])
+	  headState(new int[opts.NumHeads])
 {
 	if(headState == nullptr)
 	{
@@ -21,7 +21,8 @@ Controller::Controller(Options opts)
 	}
 
 	pumpState = 0;
-	memset(headState, 0, sizeof(uint8_t) * opts.NumHeads);
+	progress = 0;
+	memset(headState, 0, sizeof(int) * opts.NumHeads);
 }
 
 Controller::~Controller()
@@ -31,30 +32,35 @@ Controller::~Controller()
 
 void Controller::Cycle()
 {
+	this->progress = 0;
 	pumpState = 1;
-	ctrl->TogglePump(this, true);
-	ctrl->SleepMS(this, pumpDelay);
+	ctrl->TogglePump(true);
+	ctrl->SleepMS(pumpDelay);
+	this->progress = 0.01;
 
-	for(uint8_t i = 0; i < numHeads; ++i)
+	for(int i = 0; i < numHeads; ++i)
 	{
-		uint8_t currentLED = (nextStartIndex + i) % numHeads;
-		ctrl->ToggleHead(this, currentLED, true);
+		this->progress = 0.01 + (((double)i) / ((double)numHeads));
+		int currentLED = (nextStartIndex + i) % numHeads;
+		ctrl->ToggleHead(currentLED, true);
 		headState[currentLED] = 1;
-		ctrl->SleepMS(this, headOnTime);
-		ctrl->ToggleHead(this, currentLED, false);
+		ctrl->SleepMS(headOnTime);
+		ctrl->ToggleHead(currentLED, false);
 		headState[currentLED] = 0;
-		ctrl->SleepMS(this, headOffTime);
+		ctrl->SleepMS(headOffTime);
 	}
 
-	ctrl->TogglePump(this, false);
+	this->progress = 0.99;
+	ctrl->TogglePump(false);
 	pumpState = 0;
-	ctrl->SleepMS(this, pumpDelay);
+	ctrl->SleepMS(pumpDelay);
+	this->progress = 1;
 
 	nextStartIndex = (nextStartIndex + 1) % numHeads;
 	cycle++;
 }
 
-uint8_t Controller::GetHeadState(uint8_t index)
+int Controller::GetHeadState(int index)
 {
 	if(index < numHeads)
 	{
@@ -66,15 +72,20 @@ uint8_t Controller::GetHeadState(uint8_t index)
 	}
 }
 
-uint8_t Controller::GetPumpState(void)
+int Controller::GetPumpState(void)
 {
 	return pumpState;
 }
 
-uint8_t Controller::GetNumHeads(void) { return numHeads; }
+int Controller::GetNumHeads(void) { return numHeads; }
 
 int Controller::GetCycle(void)
 {
 	return cycle;
+}
+
+double Controller::GetProgress(void)
+{
+	return progress;
 }
 } // namespace SprinklerHeadController

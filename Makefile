@@ -5,6 +5,10 @@ LINUX_BUILD_DIR=build/linux
 
 .PHONY: pico linux host.linux host.pico compile_commands clean
 
+ifeq ($(DEBUG),1)
+	CMAKE_FLAGS=-DCMAKE_BUILD_TYPE=Debug
+endif
+
 pico:
 	@mkdir -p ${PICO_BUILD_DIR}
 	@docker build -t pico-builder-image -f pico.dockerfile .
@@ -27,7 +31,7 @@ linux:
 
 host.linux:
 	@mkdir -p ${LINUX_BUILD_DIR}
-	@cd ${LINUX_BUILD_DIR} && cmake ../.. && cmake --build . && ctest
+	@cd ${LINUX_BUILD_DIR} && cmake ../.. && cmake $(CMAKE_FLAGS) --build . && ctest
 	@cp -f ${LINUX_BUILD_DIR}/compile_commands.json compile_commands.json
 
 clean:

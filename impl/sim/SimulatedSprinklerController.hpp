@@ -5,27 +5,35 @@
 
 #include <unistd.h>
 #include "ftxui/component/screen_interactive.hpp"
-
+#include "ftxui/dom/elements.hpp"
 
 class SimulatedSprinklerController : public SprinklerHeadController::IController {
 public:
-
 	SimulatedSprinklerController();
 	~SimulatedSprinklerController();
-	void Init(void *controller);
-	void SleepMS(void *controller, int ms) override;
-	void TogglePump(void *controller, bool state) override;
-	void ToggleHead(void *controller, uint8_t index, bool state) override;
+	void Init(SprinklerHeadController::Controller *shc);
+	void SleepMS(int ms) override;
+	void TogglePump(bool state) override;
+	void ToggleHead(int index, bool state) override;
 
 private:
-	void displayCycle(SprinklerHeadController::Controller *spc);
-	void displayPumpStatus(SprinklerHeadController::Controller *spc, bool state);
-	void displayHeadStatus(SprinklerHeadController::Controller *spc, uint8_t index,
-		bool state);
-	void displaySetup(SprinklerHeadController::Controller *controller);
+	void displayCycle(void);
+	void displayPumpStatus(bool state);
+	void displayHeadStatus(int index, bool state);
+	void displaySetup(void);
 	void displayEnd(void);
 
-	ftxui::ScreenInteractive* screen;
+	SprinklerHeadController::Controller *controller;
+
+	ftxui::ScreenInteractive *screen;
+	ftxui::Component tab_selection;
+	ftxui::Component tab_content;
+	ftxui::Component main_container;
+	ftxui::Component main_renderer;
+	int shift;
+
+	std::vector<std::string> tab_entries;
+	int tab_index;
 };
 
 #endif

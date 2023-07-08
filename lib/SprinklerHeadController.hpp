@@ -9,18 +9,18 @@ namespace SprinklerHeadController {
 // Interface for the SprinklerHeadController
 class IController {
 public:
-	virtual void SleepMS(void *controller, int ms) = 0;
-	virtual void TogglePump(void *controller, bool state) = 0;
-	virtual void ToggleHead(void *controller, uint8_t index, bool state) = 0;
+	virtual void SleepMS(int ms) = 0;
+	virtual void TogglePump(bool state) = 0;
+	virtual void ToggleHead(int index, bool state) = 0;
 };
 
 struct Options
 {
 	IController *ControllerImplementation;
-	uint8_t NumHeads;
-	uint32_t PumpDelay;
-	uint32_t HeadOnTime;
-	uint32_t HeadOffTime;
+	int NumHeads;
+	int PumpDelay;
+	int HeadOnTime;
+	int HeadOffTime;
 };
 
 class Controller {
@@ -29,20 +29,22 @@ public:
 	~Controller();
 
 	void Cycle();
-	uint8_t GetHeadState(uint8_t index);
-	uint8_t GetPumpState(void);
+	int GetHeadState(int index);
+	int GetPumpState(void);
 	int GetCycle(void);
-	uint8_t GetNumHeads(void);
+	int GetNumHeads(void);
+	double GetProgress(void);
 
 private:
-	uint32_t cycle;
+	int cycle;
 	IController *ctrl;
-	uint8_t numHeads;
-	uint8_t pumpState;
-	uint32_t pumpDelay;
-	uint32_t headOnTime;
-	uint32_t headOffTime;
-	uint8_t nextStartIndex;
-	uint8_t *headState;
+	int numHeads;
+	int pumpState;
+	int pumpDelay;
+	int headOnTime;
+	int headOffTime;
+	int nextStartIndex;
+	int *headState;
+	double progress;
 };
 } // namespace SprinklerHeadController

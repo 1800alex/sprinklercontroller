@@ -3,17 +3,17 @@
 
 class MockSprinklerController : public SprinklerHeadController::IController {
 public:
-	void SleepMS(void *controller, int ms) override
+	void SleepMS(int ms) override
 	{
 		// Custom implementation for toggling the pump
 	}
 
-	void TogglePump(void *controller, bool state) override
+	void TogglePump(bool state) override
 	{
 		// Custom implementation for toggling the pump
 	}
 
-	void ToggleHead(void *controller, uint8_t index, bool state) override
+	void ToggleHead(int index, bool state) override
 	{
 		// Custom implementation for toggling a sprinkler head
 	}
@@ -51,7 +51,7 @@ protected:
 TEST_F(SprinklerHeadControllerTest, GetState)
 {
 	// Initially, all states should be 0
-	for(uint8_t i = 0; i < options.NumHeads; ++i)
+	for(int i = 0; i < options.NumHeads; ++i)
 	{
 		EXPECT_EQ(controller->GetHeadState(i), 0);
 	}

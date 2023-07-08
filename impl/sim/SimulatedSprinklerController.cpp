@@ -32,61 +32,72 @@ using namespace ftxui;
 
 SimulatedSprinklerController::SimulatedSprinklerController()
 {
-	screen = new ftxui::ScreenInteractive(ftxui::ScreenInteractive::Fullscreen());
+	this->screen = new ftxui::ScreenInteractive(ftxui::ScreenInteractive::Fullscreen());
 }
 
 SimulatedSprinklerController::~SimulatedSprinklerController()
 {
-#if 0
-	displayEnd();
-#endif
+	this->screen->Exit();
 }
 
-void SimulatedSprinklerController::displayCycle(SprinklerHeadController::Controller *spc)
+void SimulatedSprinklerController::displayCycle(void)
 {
-#if 0
-	move(1, 1);
-	printw("Cycle %d", spc->GetCycle() + 1);
-#endif
-	screen->Post(Event::Custom);
+	// The |shift| variable belong to the main thread. `screen->Post(task)`
+	// will execute the update on the thread where |screen| lives (e.g. the
+	// main thread). Using `screen->Post(task)` is threadsafe.
+	this->screen->Post([&] { this->shift++; });
+	// After updating the state, request a new frame to be drawn. This is done
+	// by simulating a new "custom" event to be handled.
+	this->screen->Post(Event::Custom);
 }
 
-void SimulatedSprinklerController::displayPumpStatus(SprinklerHeadController::Controller *spc, bool state)
+void SimulatedSprinklerController::displayPumpStatus(bool state)
 {
-	screen->Post(Event::Custom);
-#if 0
-	move(2, 1);
-	printw("Pump: %s", state ? "ON " : "OFF");
-#endif
+	// The |shift| variable belong to the main thread. `screen->Post(task)`
+	// will execute the update on the thread where |screen| lives (e.g. the
+	// main thread). Using `screen->Post(task)` is threadsafe.
+	this->screen->Post([&] { this->shift++; });
+	// After updating the state, request a new frame to be drawn. This is done
+	// by simulating a new "custom" event to be handled.
+	this->screen->Post(Event::Custom);
 }
 
-void SimulatedSprinklerController::displayHeadStatus(SprinklerHeadController::Controller *spc, uint8_t index,
-	bool state)
+void SimulatedSprinklerController::displayHeadStatus(int index, bool state)
 {
-#if 0
-	move(index + 3, 1);
-	printw("Head %d: %s", index, state ? "ON " : "OFF");
-#endif
-	screen->Post(Event::Custom);
+	// The |shift| variable belong to the main thread. `screen->Post(task)`
+	// will execute the update on the thread where |screen| lives (e.g. the
+	// main thread). Using `screen->Post(task)` is threadsafe.
+	this->screen->Post([&] { this->shift++; });
+	// After updating the state, request a new frame to be drawn. This is done
+	// by simulating a new "custom" event to be handled.
+	this->screen->Post(Event::Custom);
 }
 
-void SimulatedSprinklerController::displaySetup(SprinklerHeadController::Controller *controller)
+void SimulatedSprinklerController::displaySetup(void)
 {
-	// screen(ftxui::ScreenInteractive::Fullscreen())
-
 	// ---------------------------------------------------------------------------
 	// HTOP
 	// ---------------------------------------------------------------------------
-	int shift = 0;
+	this->shift = 0;
 
-	auto my_graph = [&shift](int width, int height) {
+	auto render_gauge = [&](int delta) {
+		float progress = (this->shift + delta) % 500 / 500.f;
+		return hbox({
+			text(std::to_string(int(progress * 100)) + "% ") |
+				size(WIDTH, EQUAL, 5),
+			gauge(progress),
+		});
+	};
+
+#if 1
+	auto my_graph = [&](int width, int height) {
 		std::vector<int> output(width);
 		for(int i = 0; i < width; ++i)
 		{
 			float v = 0.5f;
-			v += 0.1f * sin((i + shift) * 0.1f);
-			v += 0.2f * sin((i + shift + 10) * 0.15f);
-			v += 0.1f * sin((i + shift) * 0.03f);
+			v += 0.1f * sin((i + this->shift) * 0.1f);
+			v += 0.2f * sin((i + this->shift + 10) * 0.15f);
+			v += 0.1f * sin((i + this->shift) * 0.03f);
 			v *= height;
 			output[i] = (int)v;
 		}
@@ -326,40 +337,19 @@ void SimulatedSprinklerController::displaySetup(SprinklerHeadController::Control
 		Elements entries;
 		for(int i = 0; i < 22; ++i)
 		{
-			entries.push_back(spinner(i, shift / 2) | bold |
+			entries.push_back(spinner(i, this->shift / 2) | bold |
 							  size(WIDTH, GREATER_THAN, 2) | border);
 		}
 		return hflow(std::move(entries));
 	});
+#endif
 
 	// ---------------------------------------------------------------------------
 	// Colors
 	// ---------------------------------------------------------------------------
-	auto color_tab_renderer = Renderer([&] {
+	auto sprinklerTabRenderer = Renderer([&] {
 		auto sprinklerPumpDisplay = text("Sprinkler Pump Status");
 		{
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << std::endl;
-			std::cerr << "This is a debug message" << std::endl;
 			Elements array;
 			if(!controller->GetPumpState())
 			{
@@ -379,12 +369,12 @@ void SimulatedSprinklerController::displaySetup(SprinklerHeadController::Control
 								   border;
 		}
 
-		auto sprinklerHeadDisplay = text("Sprinkler Head Status");
+		auto sprinklerHeadDisplay = text("Sprinkler Head Status " + std::to_string(controller->GetNumHeads()));
 		{
 			Elements array;
-			for(uint8_t idx = 0; idx < controller->GetNumHeads(); idx++)
+			for(int idx = 0; idx < controller->GetNumHeads(); idx++)
 			{
-				std::cerr << "Head " + std::to_string(int(idx + 1)) + " STATE " + std::to_string(int(controller->GetHeadState(idx))) << std::endl;
+				// std::cerr << "Head " + std::to_string(int(idx + 1)) + " STATE " + std::to_string(int(controller->GetHeadState(idx))) << std::endl;
 				if(!controller->GetHeadState(idx))
 				{
 					array.push_back(
@@ -402,26 +392,25 @@ void SimulatedSprinklerController::displaySetup(SprinklerHeadController::Control
 								   border;
 		}
 
-		return flexbox(
-			{
-				sprinklerPumpDisplay,
-				sprinklerHeadDisplay,
-			},
-			FlexboxConfig().SetGap(1, 1));
+		double progress = controller->GetProgress();
+
+		return vbox({
+			sprinklerPumpDisplay,
+			sprinklerHeadDisplay,
+			separator(),
+			vbox({hbox({
+					  text(std::to_string(int(progress * 100)) + "% ") |
+						  size(WIDTH, EQUAL, 5),
+					  gauge(progress),
+				  }) |
+				  color(Color::Blue)}),
+		});
 	});
 
+#if 1
 	// ---------------------------------------------------------------------------
 	// Gauges
 	// ---------------------------------------------------------------------------
-	auto render_gauge = [&shift](int delta) {
-		float progress = (shift + delta) % 500 / 500.f;
-		return hbox({
-			text(std::to_string(int(progress * 100)) + "% ") |
-				size(WIDTH, EQUAL, 5),
-			gauge(progress),
-		});
-	};
-
 	auto gauge_component = Renderer([render_gauge] {
 		return vbox({
 			render_gauge(0) | color(Color::Black),
@@ -501,83 +490,69 @@ void SimulatedSprinklerController::displaySetup(SprinklerHeadController::Control
 	auto paragraph_renderer_group_renderer =
 		Renderer(paragraph_renderer_group,
 			[&] { return paragraph_renderer_group->Render(); });
+#endif
 
 	// ---------------------------------------------------------------------------
 	// Tabs
 	// ---------------------------------------------------------------------------
 
-	int tab_index = 0;
-	std::vector<std::string> tab_entries = {
-		"color",
+	this->tab_index = 0;
+	this->tab_entries = {
+		"status",
 		"htop",
 		"spinner",
 		"gauge",
 		"compiler",
 		"paragraph",
 	};
-	auto tab_selection =
-		Menu(&tab_entries, &tab_index, MenuOption::HorizontalAnimated());
-	auto tab_content = Container::Tab(
+	this->tab_selection =
+		Menu(&this->tab_entries, &this->tab_index, MenuOption::HorizontalAnimated());
+	this->tab_content = Container::Tab(
 		{
-			color_tab_renderer,
-			htop,
-			spinner_tab_renderer,
-			gauge_component,
-			compiler_renderer,
-			paragraph_renderer_group_renderer,
+			sprinklerTabRenderer,
+#if 1
+				htop,
+				spinner_tab_renderer,
+				gauge_component,
+				compiler_renderer,
+				paragraph_renderer_group_renderer,
+#endif
 		},
-		&tab_index);
+		&this->tab_index);
 
-	auto main_container = Container::Vertical({
-		tab_selection,
-		tab_content,
+	this->main_container = Container::Vertical({
+		this->tab_selection,
+		this->tab_content,
 	});
 
-	auto main_renderer = Renderer(main_container, [&] {
+	this->main_renderer = Renderer(main_container, [&] {
 		return vbox({
-			text("FTXUI Demo") | bold | hcenter,
-			tab_selection->Render(),
-			tab_content->Render() | flex,
+			text("Sprinkler Controller") | bold | hcenter,
+			this->tab_selection->Render(),
+			this->tab_content->Render() | flex,
 		});
 	});
 
-	// std::atomic<bool> refresh_ui_continue = true;
-	// std::thread refresh_ui([&] {
-	// 	while(refresh_ui_continue)
-	// 	{
-	// 		using namespace std::chrono_literals;
-	// 		std::this_thread::sleep_for(0.05s);
-	// 		// The |shift| variable belong to the main thread. `screen->Post(task)`
-	// 		// will execute the update on the thread where |screen| lives (e.g. the
-	// 		// main thread). Using `screen->Post(task)` is threadsafe.
-	// 		screen->Post([&] { shift++; });
-	// 		// After updating the state, request a new frame to be drawn. This is done
-	// 		// by simulating a new "custom" event to be handled.
-	// 		screen->Post(Event::Custom);
-	// 	}
-	// });
+	std::atomic<bool> refresh_ui_continue = true;
+	std::thread([&]() {
+		while(refresh_ui_continue)
+		{
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(0.2s);
+			// The |shift| variable belong to the main thread. `screen->Post(task)`
+			// will execute the update on the thread where |screen| lives (e.g. the
+			// main thread). Using `screen->Post(task)` is threadsafe.
+			screen->Post([&] { this->shift++; });
+			// After updating the state, request a new frame to be drawn. This is done
+			// by simulating a new "custom" event to be handled.
+			screen->Post(Event::Custom);
+		}
+	}).detach();
 
-	screen->Loop(main_renderer);
-	// refresh_ui_continue = false;
-	// refresh_ui.join();
-
-#if 0
-	// Initialize ncurses
-	initscr();
-	clear();
-
-	move(0, 1);
-	printw("Sprinkler controller compiled %s %s", __DATE__, __TIME__);
-
-	// Display initial states
-	displayCycle(controller);
-	displayPumpStatus(controller, false);
-	for(uint8_t i = 0; i < controller->GetNumHeads(); ++i)
-	{
-		displayHeadStatus(controller, i, false);
-	}
-	refresh();
-#endif
+	std::thread([&]() {
+		this->screen->Loop(this->main_renderer);
+		refresh_ui_continue = false;
+	}).detach();
 }
 
 void SimulatedSprinklerController::displayEnd(void)
@@ -585,29 +560,26 @@ void SimulatedSprinklerController::displayEnd(void)
 	// endwin();
 }
 
-void SimulatedSprinklerController::Init(void *controller)
+void SimulatedSprinklerController::Init(SprinklerHeadController::Controller *shc)
 {
-	SprinklerHeadController::Controller *spc = static_cast<SprinklerHeadController::Controller *>(controller);
-	displaySetup(spc);
+	this->controller = shc;
+	this->displaySetup();
 }
 
-void SimulatedSprinklerController::SleepMS(void *controller, int ms)
+void SimulatedSprinklerController::SleepMS(int ms)
 {
 	usleep(ms * 1000);
 }
 
-void SimulatedSprinklerController::TogglePump(void *controller, bool state)
+void SimulatedSprinklerController::TogglePump(bool state)
 {
-	SprinklerHeadController::Controller *spc = static_cast<SprinklerHeadController::Controller *>(controller);
-	displayPumpStatus(spc, state);
+	this->displayPumpStatus(state);
 	// refresh();
 }
 
-void SimulatedSprinklerController::ToggleHead(void *controller, uint8_t index, bool state)
+void SimulatedSprinklerController::ToggleHead(int index, bool state)
 {
-	SprinklerHeadController::Controller *spc = static_cast<SprinklerHeadController::Controller *>(controller);
-	displayHeadStatus(spc, index, state);
-	// refresh();
+	this->displayHeadStatus(index, state);
 }
 
 #endif
